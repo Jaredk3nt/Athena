@@ -1,37 +1,30 @@
-const Discord = require('discord.io');
+const Discord = require('discord.js');
 const Request = require('request');
+const Utils = require('./utils');
+
+const Stats = require('./commands/stats');
 
 const auth = require('./auth.json');
 
-const athena = new Discord.Client({
-    token: auth.token,
-    autorun: true
-});
+const athena = new Discord.Client();
 
 athena.on('ready', function(evnt) {
     console.log('Athena online.')
 });
 
-athena.on('message', (user, userID, channelID, message, evnt) => {
-    if (message.substring(0,1) === '!') {
-        var args = message.substring(1).split(' ');
-        var command = args[0];
+athena.on('message', (message) => {
+    if (message.content.startsWith('!')) {
+        const args = message.content.slice(1).split(/\s+/g);
+        let command = args[0];
         args.shift();
 
         switch(command) {
             case 'say':
-                var msg = message.substring(5);
+                var msg = message.content.slice(5);
                 if(msg.length > 0) {
-                    console.log('Saying: ' + msg);
-                    athena.sendMessage({
-                        to: channelID,
-                        message: msg
-                    });
+                    message.channel.send(msg);
                 } else {
-                    athena.sendMessage({
-                        to: channelID,
-                        message: 'You need to input something for me to say.'
-                    });
+                    message.channel.send('You need to input something for me to say.');
                 }
                 break;
             case 'rank':
@@ -43,20 +36,32 @@ athena.on('message', (user, userID, channelID, message, evnt) => {
                     };
 
                     Request(options, function(error, response, body) {
-                        var data = JSON.parse(body);
-                        var msg = args[0] + ' is currently at rank **' + data.us.stats.competitive.overall_stats.comprank + '**';
-                        athena.sendMessage({
-                            to:channelID,
-                            message: msg
-                        });
-                    });
+                        let data = JSON.parse(body);
+                        //console.log(data.error);
+                        if(data.error === undefined) {
+                            //console.log(data);
+                            let level = (data.us.stats.quickplay.overall_stats.prestige * 100) + data.us.stats.quickplay.overall_stats.level;
+                            let msg = { embed: {
+                                color:  16358938,
+                                author: {
+                                    name: args[0],
+                                },
+                                description: Utils.capitalize(data.us.stats.competitive.overall_stats.tier) + ' - **' + data.us.stats.competitive.overall_stats.comprank + '** SR',
+                            }}
+                            message.channel.send(msg);
+                        } else {
+                            message.channel.send('Sorry, I couldn\'t find that user. Be careful battletags are **case sensitive**');
+                        }
 
-                    athena.sendMessage({
-                        to: channelID,
-                        message: 'Let me check...'
                     });
+                    message.channel.send('Let me check...');
                 }
-
+                break;
+            case 'stats':
+                Stats.run(athena, message, args);
+                break;
         }
     }
 });
+
+athena.login(auth.token);

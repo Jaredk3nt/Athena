@@ -5,7 +5,7 @@
     "main": "bot.js",
     "author": "Jared K. Jones",
     "dependencies": {
-        "discord.io": "^2.5.2",
+        "discord.js": "^11.1.0",
         "request": "^2.81.0"
     }
 }

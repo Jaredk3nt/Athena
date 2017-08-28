@@ -10,12 +10,10 @@ module.exports = {
                 method: 'GET',
                 headers: { 'User-Agent': 'athena-app'}
             };
-
+            message.channel.send('Let me check...');
             Request(options, function(error, response, body) {
                 let data = JSON.parse(body);
-                //console.log(data.error);
                 if(data.error === undefined) {
-                    //console.log(data);
                     let level = (data.us.stats.quickplay.overall_stats.prestige * 100) + data.us.stats.quickplay.overall_stats.level;
                     let msg = new Discord.RichEmbed({})
                         .setColor(16358938)
@@ -27,7 +25,8 @@ module.exports = {
                 }
 
             });
-            message.channel.send('Let me check...');
+        } else {
+            message.channel.send('usage: `!rank battletag-1234`');
         }
     }
 }

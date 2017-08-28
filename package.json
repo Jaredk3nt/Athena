@@ -4,6 +4,13 @@
     "description": "A Discord bot for displaying overwatch based information",
     "main": "bot.js",
     "author": "Jared K. Jones",
+    "scripts": {
+        "start": "node bot.js"
+    },
+    "engines": {
+        "node": "7.8.0",
+        "npm": "4.2.0"
+    },
     "dependencies": {
         "discord.js": "^11.1.0",
         "request": "^2.81.0"

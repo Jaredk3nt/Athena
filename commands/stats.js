@@ -10,7 +10,7 @@ module.exports = {
                 method: 'GET',
                 headers: { 'User-Agent': 'athena-app'}
             };
-
+            message.channel.send('Let me check...');
             Request(options, function(error, response, body) {
                 let data = JSON.parse(body);
                 if(data.error === undefined) {
@@ -31,7 +31,8 @@ module.exports = {
                     message.channel.send('Sorry, I couldn\'t find that user. Be careful battletags are **case sensitive**');
                 }
             });
-            message.channel.send('Let me check...');
+        } else {
+            message.channel.send('usage: `!stats battletag-1234`');
         }
     }
 }
@@ -75,9 +76,12 @@ var getTopHeroes = function(heroes) {
     let heroStats = '';
     for(index in heroArray) {
         let hero = heroArray[index];
+        let playtime = hero.playtime < 1.0 ? hero.playtime.toFixed(2) : hero.playtime.toFixed(0);
+        let winrate = (heroes.stats.competitive[hero.name].general_stats.win_percentage * 100).toFixed(0);
+
         heroNames += '**' + Utils.capitalize(hero.name) + '**\n\n\n';
-        heroStats += hero.playtime + ' hours\n';
-        heroStats += (heroes.stats.competitive[hero.name].general_stats.win_percentage * 100) + '% winrate\n\n';
+        heroStats += playtime + ' hours\n';
+        heroStats += winrate + '% winrate\n\n';
     }
 
     return [heroNames, heroStats];

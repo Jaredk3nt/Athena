@@ -1,0 +1,11 @@
+{
+    "name": "athena",
+    "version": "0.0.1",
+    "description": "A Discord bot for displaying overwatch based information",
+    "main": "bot.js",
+    "author": "Jared K. Jones",
+    "dependencies": {
+        "discord.io": "^2.5.2",
+        "request": "^2.81.0"
+    }
+}

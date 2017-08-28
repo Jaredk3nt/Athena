@@ -1,9 +1,10 @@
+const Discord = require('discord.js');
 const Request = require('request');
 const Utils = require('../utils');
 
 module.exports = {
     run: function(athena, message, args) {
-        if(args[0] !== null) {
+        if(args[0] !== undefined) {
             var options = {
                 url: 'http://owapi.net/api/v3/u/' + args[0] + '/blob',
                 method: 'GET',
@@ -16,28 +17,16 @@ module.exports = {
                     let statObj = data.us.stats.competitive.overall_stats;
                     let level = (statObj.prestige * 100) + statObj.level;
                     let heroes = getTopHeroes(data.us.heroes);
-                    let msg = { embed: {
-                        color:  16358938,
-                        author: {
-                            name: args[0],
-                            //icon_url: data.us.stats.quickplay.overall_stats.avatar
-                        },
-                        description: 'lv. ' + level + ' | ' + Utils.capitalize(statObj.tier) + ' - **' + statObj.comprank + '** SR',
-                        thumbnail: {
-                            url: statObj.avatar
-                        },
-                        fields: [
-                            {
-                                name: 'Winrate',
-                                value: '**' + statObj.win_rate + '%** ' + '(' + statObj.wins + '-' + statObj.losses + '-' + statObj.ties + ')'
-                            },
-                            {
-                                name: 'Heroes',
-                                value: heroes
-                            }
-                        ]
-                    }}
-                    message.channel.send(msg);
+
+                    let msg = new Discord.RichEmbed({})
+                        .setColor(16358938)
+                        .setTitle(args[0])
+                        .setDescription('lv. ' + level + ' | ' + Utils.capitalize(statObj.tier) + ' - **' + statObj.comprank + '** SR')
+                        .setThumbnail(statObj.avatar).addField('__Winrate__', '**' + statObj.win_rate + '%** ' + '(' + statObj.wins + '-' + statObj.losses + '-' + statObj.ties + ')\n')
+                        //.addBlankField()
+                        .addField('__Top Heroes__', heroes[0], true)
+                        .addField('-', '\n'+heroes[1], true);
+                    message.channel.send({ embed: msg });
                 } else {
                     message.channel.send('Sorry, I couldn\'t find that user. Be careful battletags are **case sensitive**');
                 }
@@ -82,12 +71,14 @@ var getTopHeroes = function(heroes) {
         }
     }
     // Create the string for the display message
-    let topHeroes = '';
-    for(hero of heroArray) {
-        topHeroes += '**' + Utils.capitalize(hero.name) + '**\n';
-        topHeroes += hero.playtime + ' hours\t';
-        topHeroes += '**' + (heroes.stats.competitive[hero.name].general_stats.win_percentage * 100) + '%** winrate\n---\n';
+    let heroNames = '';
+    let heroStats = '';
+    for(index in heroArray) {
+        let hero = heroArray[index];
+        heroNames += '**' + Utils.capitalize(hero.name) + '**\n\n\n';
+        heroStats += hero.playtime + ' hours\n';
+        heroStats += (heroes.stats.competitive[hero.name].general_stats.win_percentage * 100) + '% winrate\n\n';
     }
 
-    return topHeroes;
+    return [heroNames, heroStats];
 };
